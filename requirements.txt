@@ -1,0 +1,6 @@
+duckdb==1.5.2
+pandas==2.2.0
+matplotlib==3.8.2
+plotly==5.18.0
+memory-profiler==0.61.0
+jupyter==1.1.1
