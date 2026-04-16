@@ -126,24 +126,24 @@ jiya-sharma-data-engineering-assignment/
 
 ## Schema Design Justification (Section A3)
 
-The Star Schema was chosen over a fully normalised 3NF model because the assignment's analytical queries (funnel analysis, session aggregation, brand revenue) all involve aggregations across dimensional attributes. A star schema minimises the number of joins required — queries touch the fact table and at most two dimensions, which is significantly faster than navigating a deeply normalised schema with multiple join hops.
+Star schemas are used instead of a fully normalised 3NF models because the queries associated with this assignment (funnel analysis, session aggregation, brand revenue) are all analytical in nature and therefore require an aggregation over dimensional attributes. Therefore a star schema provides the minimum number of joins that need to be done — queries touch the fact table and no more than two dimension tables — whereas a deeply normalised schema will always have a higher number of joins to navigate through.
 
-The `dim_product` table contains `category_main` and `category_sub` as derived columns split from `category_code`. This is a deliberate denormalisation: creating a separate `dim_category` table would add a join without meaningful benefit because category hierarchies in the raw data are not reused across products in a normalised way.
+In addition, the dim_product table contains category_main and category_sub as derived columns created from splitting the category code column. Although there is a deliberate denormalisation in creating these derived columns and splitting out into category codes into a new dim_category table would provide a join point, since we do not reuse the hierarchy within product categories when they exist in the raw data.
 
-Indexes were chosen based on query selectivity analysis. The `event_type` index has the highest impact because it appears in every Section C query. The `user_key` index delivers the largest speedup (6.1x on Q4) because the churn analysis requires matching users across two month-specific subsets of 55M rows each. The `event_month` index reduces scan size from 110M to ~55M for all monthly-filtered queries.
+Indexing was based on analysing query selectivity. We chose indexing based on where the indexes had the greatest effect — the event_type index affects every one of the Section C queries. In contrast, the largest speed up delivered by our indexes (6.1x on Q4), came from indexing on user_key due to the churn analysis requiring us to match users across two month specific subsets of 55 million row each. The event_month index reduced our scan size from 110 million down to approximately 55 million for all of our monthly filtered queries.
 
 ---
 
 ## Scalability: What Would Change at 1TB+
 
-1. **Compute:** Apache Spark on AWS EMR — distributes processing across a cluster. DuckDB transformation logic maps directly to Spark DataFrame API.
+1. **Compute:** The data is processed in parallel as part of an Apache Spark cluster using AWS EMR. This means that there will be multiple nodes (i.e., machines) working at once on parts of your data. As such, the DuckDB transform logic can map very easily into the Spark Data Frame API.
 2. **Storage:** Apache Parquet partitioned by `event_month`/`event_date` — 5-8x I/O reduction vs CSV, columnar reads for analytics.
-3. **Orchestration:** Apache Airflow DAGs with retry logic, backfill capability, and monitoring dashboards.
-4. **Warehouse:** Google BigQuery or Amazon Redshift — distributed columnar stores that scale to petabytes. Same star schema DDL with minor syntax changes.
+3. **Orchestration:** We'll use Apache Airflow (specifically DAGs) to manage how we run our ETL scripts; this includes setting up retry logic so if something goes wrong during execution, it will automatically be re-run after some delay, and also creating dashboards where we can monitor progress. 
+4. **Warehouse:** Either Google's BigQuery or Amazon's RedShift will serve as the warehouse. These are both large-scale column-store databases that support petabyte-sized datasets. Both systems require the same Star Schema DDL definitions but do require slightly different syntax.
 
 ---
 
-## Assumptions and Known Limitations
+## Assumptions and Limitations
 
 - Raw CSV files are excluded from the repo (sizes exceed GitHub limits). The `.gitignore` in `data/raw/` excludes all CSV files.
 - All file paths are relative — no absolute paths hardcoded.
