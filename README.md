@@ -1,9 +1,9 @@
 # E-Commerce Behavior Data Engineering Pipeline
 **KIE Square Analytics — Data Engineer Trainee Assignment 2026**
 
-**Name:** Jiya Sharma  
-**Roll No.:** A501144824001 
-**University :** Amity University Mtech AI 
+**Name:** Jiya Sharma.    
+**Roll No.:** A501144824001   
+**University :** Amity University Mtech AI.    
 **Dataset:** eCommerce Behavior Data — Multi-Category Store (Oct & Nov 2019)  
 **Scale:** 109,806,507 rows | 14.6 GB raw data  
 **Database:** DuckDB (local, serverless, no cloud required)
